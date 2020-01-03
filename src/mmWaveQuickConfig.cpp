@@ -1,7 +1,9 @@
 #include "ros/ros.h"
+#include "std_msgs/Int32.h"
 #include "ti_mmwave_rospkg/mmWaveCLI.h"
 #include <cstdlib>
 #include <fstream>
+#include <sstream>
 #include <stdio.h>
 #include <regex>
 #include "ParameterParser.h"
@@ -9,13 +11,20 @@
 int main(int argc, char **argv) {
     ros::init(argc, argv, "mmWaveQuickConfig");
     ros::NodeHandle nh;
+
+    ros::Publisher set_radar_pub = nh.advertise<std_msgs::Int32>("/ti_mmwave/set_radar", 1);
+    ros::Duration(0.5).sleep();
+    std_msgs::Int32 msg;
+    msg.data = 1;
+    set_radar_pub.publish(msg);
+    ros::Duration(0.5).sleep();
+
     ti_mmwave_rospkg::mmWaveCLI srv;
     if (argc != 2) {
         ROS_INFO("mmWaveQuickConfig: usage: mmWaveQuickConfig /file_directory/params.cfg");
         return 1;
     } else 
         ROS_INFO("mmWaveQuickConfig: Configuring mmWave device using config file: %s", argv[1]);
-    
     ros::ServiceClient client = nh.serviceClient<ti_mmwave_rospkg::mmWaveCLI>("/mmWaveCLI");
     std::ifstream myParams;
     ti_mmwave_rospkg::ParameterParser parser;
@@ -24,6 +33,7 @@ int main(int argc, char **argv) {
     
     //wait 0.5 secs to avoid multi-sensor conflicts
     ros::Duration(0.5).sleep();
+
 
     myParams.open(argv[1]);
     
@@ -57,5 +67,10 @@ int main(int argc, char **argv) {
         return 1;
     }
     ROS_INFO("mmWaveQuickConfig: mmWaveQuickConfig will now terminate. Done configuring mmWave device using config file: %s", argv[1]);
+    //Run indefinitly as to only stop on error
+    while (ros::ok())
+    {
+        ros::Duration(10).sleep();
+    }
     return 0;
 }
