@@ -173,6 +173,17 @@ add_dependencies(mmwave ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TA
 #   ${catkin_LIBRARIES}
 # )
 
+set (CMAKE_CXX_STANDARD 11)
+
+add_executable(${PROJECT_NAME} src/mmWaveLoader.cpp)
+target_link_libraries(mmwave ${serial_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} mmwave ${serial_LIBRARIES})
+add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS} mmwave ${serial_EXPORTED_TARGETS})
+
+add_executable(mmWaveQuickConfig src/mmWaveQuickConfig.cpp)
+target_link_libraries(mmWaveQuickConfig ${catkin_LIBRARIES} mmwave)
+add_dependencies(mmWaveQuickConfig ${catkin_EXPORTED_TARGETS} mmwave)
+
 #############
 ## Install ##
 #############
@@ -188,11 +199,11 @@ add_dependencies(mmwave ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TA
 # )
 
 ## Mark executables and/or libraries for installation
-# install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+install(TARGETS ${PROJECT_NAME} mmWaveQuickConfig mmwave
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
 
 ## Mark cpp header files for installation
 # install(DIRECTORY include/${PROJECT_NAME}/
@@ -202,21 +213,15 @@ add_dependencies(mmwave ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TA
 # )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
-set (CMAKE_CXX_STANDARD 11)
+install(FILES
+  mmWave_nodelets.xml
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
 
-add_executable(${PROJECT_NAME} src/mmWaveLoader.cpp)
-target_link_libraries(mmwave ${serial_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} mmwave ${serial_LIBRARIES})
-add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS} mmwave ${serial_EXPORTED_TARGETS})
-
-add_executable(mmWaveQuickConfig src/mmWaveQuickConfig.cpp)
-target_link_libraries(mmWaveQuickConfig ${catkin_LIBRARIES} mmwave)
-add_dependencies(mmWaveQuickConfig ${catkin_EXPORTED_TARGETS} mmwave)
+install(FILES
+  cfg/NotManyPoints.cfg
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/cfg
+)
 
 #############
 ## Testing ##
